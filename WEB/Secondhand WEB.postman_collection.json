@@ -1,0 +1,1097 @@
+{
+	"info": {
+		"_postman_id": "a80cab31-04f0-421a-9251-7a30b8ac5c7b",
+		"name": "Secondhand WEB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31277872"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Membuat nama acak sebanyak 5 karakter\r",
+									"let name = '';\r",
+									"const characters = 'abcdefghijklmnopqrstuvwxyz';\r",
+									"for (let i = 0; i < 5; i++) {\r",
+									"    name += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"// Membuat email acak menggunakan nama acak sebelumnya\r",
+									"let email = name + '@example.com';\r",
+									"\r",
+									"// Menyimpan email acak ke dalam environment variable 'setEmail'\r",
+									"pm.environment.set('setEmail', email);\r",
+									"\r",
+									"console.log(email);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    // Mendapatkan nilai 'email' dari body response\r",
+									"    let responseBody = pm.response.json();\r",
+									"    let emailFromResponse = responseBody.user.email;\r",
+									"\r",
+									"    // Memeriksa apakah respons teks mengandung nilai dari variabel 'setEmail'\r",
+									"    pm.expect(emailFromResponse).to.include(pm.environment.get('setEmail'));\r",
+									"});\r",
+									"\r",
+									"pm.test('Simpan ID dari Body Response ke dalam Variabel Lingkungan', function () {\r",
+									"    // Mendapatkan nilai 'id' dari body response\r",
+									"    let idFromResponse = pm.response.json().user.id;\r",
+									"\r",
+									"    // Memastikan nilai 'id' tidak undefined\r",
+									"    pm.expect(idFromResponse).to.not.be.undefined;\r",
+									"\r",
+									"    // Menyimpan nilai 'id' ke dalam variabel lingkungan 'id'\r",
+									"    pm.environment.set('id', idFromResponse);\r",
+									"    console.log('Nilai ID yang disimpan:', idFromResponse);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user\": {\r\n    \"name\": \"ray\",\r\n    \"email\": \"{{setEmail}}\",\r\n    \"password\": \"123456\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/users.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"users.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Mendapatkan data dari respons\r",
+									"var responseData = pm.response.json();\r",
+									"\r",
+									"// Mengambil access_token dari respons\r",
+									"var accessToken = responseData.session.token;\r",
+									"\r",
+									"// Simpan access_token ke dalam environment untuk akun pertama\r",
+									"pm.environment.set(\"access_token\", accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user\": {\r\n    \"email\": \"{{setEmail}}\",\r\n    \"password\": \"123456\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/users/sign_in.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"users",
+								"sign_in.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verifikasi nilai 'user[name]' dengan isi 'user.name' dari body response\", function () {\r",
+									"    // Mendapatkan nilai 'user[name]' dari form data\r",
+									"    let userNameFromFormDataObj = pm.request.body.formdata.find(item => item.key === 'user[name]');\r",
+									"    let userNameFromFormData = userNameFromFormDataObj ? userNameFromFormDataObj.value : null;\r",
+									"\r",
+									"    // Mendapatkan nilai 'user.name' dari body response\r",
+									"    let responseBody = pm.response.json();\r",
+									"    let userNameFromResponseBody = responseBody.user.name;\r",
+									"\r",
+									"    // Membandingkan nilai 'user[name]' dengan 'user.name'\r",
+									"    pm.expect(userNameFromFormData).to.equal(userNameFromResponseBody);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user[name]",
+									"value": "RAY",
+									"type": "text"
+								},
+								{
+									"key": "user[phone_number]",
+									"value": "081111",
+									"type": "text"
+								},
+								{
+									"key": "user[address]",
+									"value": "ciamis",
+									"type": "text"
+								},
+								{
+									"key": "user[city_id]",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "user[avatar]",
+									"type": "file",
+									"src": "image123.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base.url}}/profiles.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"profiles.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/profiles.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"profiles.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base.url}}/categories.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"categories.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Categories by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/categories/:id",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"categories",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Simpan ID Product dari Body Response ke dalam Variabel Lingkungan', function () {\r",
+									"    // Mendapatkan nilai 'id' dari body response\r",
+									"    let idFromResponse = pm.response.json().product.id;\r",
+									"\r",
+									"    // Memastikan nilai 'id' tidak undefined\r",
+									"    pm.expect(idFromResponse).to.not.be.undefined;\r",
+									"\r",
+									"    // Menyimpan nilai 'id' ke dalam variabel lingkungan 'id'\r",
+									"    pm.environment.set('id_product', idFromResponse);\r",
+									"    console.log('Nilai ID yang disimpan:', idFromResponse);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "product[name]",
+									"value": "weeeh",
+									"type": "text"
+								},
+								{
+									"key": "product[price]",
+									"value": "12000",
+									"type": "text"
+								},
+								{
+									"key": "product[description]",
+									"value": "sihitam",
+									"type": "text"
+								},
+								{
+									"key": "product[status]",
+									"value": "published",
+									"type": "text"
+								},
+								{
+									"key": "product[category_id]",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "product[images][]",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base.url}}/products.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"products.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"warning": "This is a duplicate header and will be overridden by the Content-Type header generated by Postman.",
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "product[name]",
+									"value": "waaah",
+									"type": "text"
+								},
+								{
+									"key": "product[price]",
+									"value": "200000",
+									"type": "text"
+								},
+								{
+									"key": "product[description]",
+									"value": "hitam",
+									"type": "text"
+								},
+								{
+									"key": "product[status]",
+									"value": "published",
+									"type": "text"
+								},
+								{
+									"key": "product[category_id]",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "product[images][]",
+									"type": "file",
+									"src": "image123.jpg"
+								},
+								{
+									"key": "product[persisted_images][]",
+									"type": "file",
+									"src": "image123.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base.url}}/products/{{id_product}}.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"products",
+								"{{id_product}}.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verifikasi value nama product\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.products[0].name).to.eql(\"waaah\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/products.json?page=1&category_id=1&user_id={{id}}",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"products.json"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "category_id",
+									"value": "1"
+								},
+								{
+									"key": "user_id",
+									"value": "{{id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/products/{{id_product}}.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"products",
+								"{{id_product}}.json"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Buyer",
+			"item": [
+				{
+					"name": "Registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Membuat nama acak sebanyak 5 karakter\r",
+									"let name = '';\r",
+									"const characters = 'abcdefghijklmnopqrstuvwxyz';\r",
+									"for (let i = 0; i < 5; i++) {\r",
+									"    name += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"// Membuat email acak menggunakan nama acak sebelumnya\r",
+									"let email = name + '@example.com';\r",
+									"\r",
+									"// Menyimpan email acak ke dalam environment variable 'setEmail'\r",
+									"pm.environment.set('setEmail_buyer', email);\r",
+									"\r",
+									"console.log(email);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    // Mendapatkan nilai 'email' dari body response\r",
+									"    let responseBody = pm.response.json();\r",
+									"    let emailFromResponse = responseBody.user.email;\r",
+									"\r",
+									"    // Memeriksa apakah respons teks mengandung nilai dari variabel 'setEmail_buyer'\r",
+									"    pm.expect(emailFromResponse).to.include(pm.environment.get('setEmail_buyer'));\r",
+									"});\r",
+									"\r",
+									"pm.test('Simpan ID dari Body Response ke dalam Variabel Lingkungan', function () {\r",
+									"    // Mendapatkan nilai 'id' dari body response\r",
+									"    let idFromResponse = pm.response.json().user.id;\r",
+									"\r",
+									"    // Memastikan nilai 'id' tidak undefined\r",
+									"    pm.expect(idFromResponse).to.not.be.undefined;\r",
+									"\r",
+									"    // Menyimpan nilai 'id' ke dalam variabel lingkungan 'id'\r",
+									"    pm.environment.set('id_buyer', idFromResponse);\r",
+									"    console.log('Nilai ID yang disimpan:', idFromResponse);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user\": {\r\n    \"name\": \"arpan\",\r\n    \"email\": \"{{setEmail_buyer}}\",\r\n    \"password\": \"123456\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/users.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"users.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Mendapatkan data dari respons\r",
+									"var responseData = pm.response.json();\r",
+									"\r",
+									"// Mengambil access_token dari respons\r",
+									"var accessTokenBuyer = responseData.session.token;\r",
+									"\r",
+									"// Simpan access_token ke dalam environment\r",
+									"pm.environment.set(\"access_token_buyer\", accessTokenBuyer);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user\": {\r\n    \"email\": \"{{setEmail_buyer}}\",\r\n    \"password\": \"123456\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/users/sign_in.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"users",
+								"sign_in.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verifikasi nilai 'user[name]' dengan isi 'user.name' dari body response\", function () {\r",
+									"    // Mendapatkan nilai 'user[name]' dari form data\r",
+									"    let userNameFromFormDataObj = pm.request.body.formdata.find(item => item.key === 'user[name]');\r",
+									"    let userNameFromFormData = userNameFromFormDataObj ? userNameFromFormDataObj.value : null;\r",
+									"\r",
+									"    // Mendapatkan nilai 'user.name' dari body response\r",
+									"    let responseBody = pm.response.json();\r",
+									"    let userNameFromResponseBody = responseBody.user.name;\r",
+									"\r",
+									"    // Membandingkan nilai 'user[name]' dengan 'user.name'\r",
+									"    pm.expect(userNameFromFormData).to.equal(userNameFromResponseBody);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user[name]",
+									"value": "ARPAN",
+									"type": "text"
+								},
+								{
+									"key": "user[phone_number]",
+									"value": "0822222",
+									"type": "text"
+								},
+								{
+									"key": "user[address]",
+									"value": "ciamis",
+									"type": "text"
+								},
+								{
+									"key": "user[city_id]",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "user[avatar]",
+									"type": "file",
+									"src": "image123.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base.url}}/profiles.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"profiles.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/profiles.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"profiles.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Offers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"// Mendapatkan data dari respons\r",
+									"var responseData = pm.response.json();\r",
+									"\r",
+									"// Mengambil access_token dari respons\r",
+									"var idoffers = responseData.offer.id;\r",
+									"\r",
+									"// Simpan access_token ke dalam environment\r",
+									"pm.environment.set(\"id_offer\", idoffers);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"offer\": {\r\n    \"price\": 10000,\r\n    \"to_id\": {{id}},\r\n    \"product_id\": {{id_product}}\r\n  } \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/offers.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"offers.json"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "List Offers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disableCookies": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base.url}}/users/{{id_buyer}}/offers.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"users",
+								"{{id_buyer}}",
+								"offers.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Offer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"offer\": {\r\n    \"status\": \"accepted\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/offers/{{id_offer}}.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"offers",
+								"{{id_offer}}.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/products/{{id_product}}.json",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"products",
+								"{{id_product}}.json"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}
