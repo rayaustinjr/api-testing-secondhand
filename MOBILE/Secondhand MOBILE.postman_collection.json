@@ -1,0 +1,970 @@
+{
+	"info": {
+		"_postman_id": "8409d83d-be3f-48f0-82f0-cfbfcb1e1708",
+		"name": "Secondhand MOBILE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31277872"
+	},
+	"item": [
+		{
+			"name": "Seller",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Memeriksa waktu respons\r",
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    // Mendapatkan nilai 'email' dari body response\r",
+									"    let responseBody = pm.response.json();\r",
+									"    let emailFromResponse = responseBody.email;\r",
+									"\r",
+									"    // Memeriksa apakah respons teks mengandung nilai dari variabel 'setEmail'\r",
+									"    pm.expect(emailFromResponse).to.include(pm.environment.get('setEmail'));\r",
+									"});\r",
+									"\r",
+									"pm.test('Simpan ID dari Body Response ke dalam Variabel Lingkungan', function () {\r",
+									"    // Mendapatkan nilai 'id' dari body response\r",
+									"    let idFromResponse = pm.response.json().id;\r",
+									"\r",
+									"    // Memastikan nilai 'id' tidak undefined\r",
+									"    pm.expect(idFromResponse).to.not.be.undefined;\r",
+									"\r",
+									"    // Menyimpan nilai 'id' ke dalam variabel lingkungan 'id'\r",
+									"    pm.environment.set('id', idFromResponse);\r",
+									"    console.log('Nilai ID yang disimpan:', idFromResponse);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Membuat nama acak sebanyak 5 karakter\r",
+									"let name = '';\r",
+									"const characters = 'abcdefghijklmnopqrstuvwxyz';\r",
+									"for (let i = 0; i < 5; i++) {\r",
+									"    name += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"// Membuat email acak menggunakan nama acak sebelumnya\r",
+									"let email = name + '@example.com';\r",
+									"\r",
+									"// Menyimpan email acak ke dalam environment variable 'setEmail'\r",
+									"pm.environment.set('setEmail', email);\r",
+									"\r",
+									"console.log(email);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "full_name",
+									"value": "ray",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "{{setEmail}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text"
+								},
+								{
+									"key": "phone_number",
+									"value": "0851111",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Jln mana ya",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "city",
+									"value": "ciamis",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base.url}}/auth/register",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Mendapatkan data dari respons\r",
+									"var responseData = pm.response.json();\r",
+									"\r",
+									"// Mengambil access_token dari respons\r",
+									"var accessToken = responseData.access_token;\r",
+									"\r",
+									"// Simpan access_token ke dalam environment untuk akun pertama\r",
+									"pm.environment.set(\"access_token\", accessToken);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{setEmail}}\",\r\n  \"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/auth/login",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Mendapatkan data dari respons\r",
+									"var responseData = pm.response.json();\r",
+									"\r",
+									"// Mengambil access_token dari respons\r",
+									"var idproduct = responseData.id;\r",
+									"\r",
+									"// Simpan access_token ke dalam environment untuk akun pertama\r",
+									"pm.environment.set(\"id_product\", idproduct);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Motor",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Supra",
+									"type": "text"
+								},
+								{
+									"key": "base_price",
+									"value": "10000",
+									"type": "text"
+								},
+								{
+									"key": "category_ids",
+									"value": "1,2",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "ciamis",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "image123.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base.url}}/seller/product",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"seller",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Memeriksa waktu respons\r",
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/seller/product",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"seller",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Memeriksa waktu respons\r",
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/seller/product/{{id_product}}",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"seller",
+								"product",
+								"{{id_product}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Set header dengan kunci 'access_token' dan nilai '{{access_token}}'",
+							"pm.request.headers.add({",
+							"    key: 'access_token',",
+							"    value: pm.environment.get('access_token')",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Buyer",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Memeriksa waktu respons\r",
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    // Mendapatkan nilai 'email' dari body response\r",
+									"    let responseBody = pm.response.json();\r",
+									"    let emailFromResponse = responseBody.email;\r",
+									"\r",
+									"    // Memeriksa apakah respons teks mengandung nilai dari variabel 'setEmail_buyer'\r",
+									"    pm.expect(emailFromResponse).to.include(pm.environment.get('setEmail_buyer'));\r",
+									"});\r",
+									"\r",
+									"pm.test('Simpan ID dari Body Response ke dalam Variabel Lingkungan', function () {\r",
+									"    // Mendapatkan nilai 'id' dari body response\r",
+									"    let idFromResponse = pm.response.json().id;\r",
+									"\r",
+									"    // Memastikan nilai 'id' tidak undefined\r",
+									"    pm.expect(idFromResponse).to.not.be.undefined;\r",
+									"\r",
+									"    // Menyimpan nilai 'id' ke dalam variabel lingkungan 'id_buyer'\r",
+									"    pm.environment.set('id_buyer', idFromResponse);\r",
+									"    console.log('Nilai ID yang disimpan:', idFromResponse);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Membuat nama acak sebanyak 5 karakter\r",
+									"let name = '';\r",
+									"const characters = 'abcdefghijklmnopqrstuvwxyz';\r",
+									"for (let i = 0; i < 5; i++) {\r",
+									"    name += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"// Membuat email acak menggunakan nama acak sebelumnya\r",
+									"let email = name + '@example.com';\r",
+									"\r",
+									"// Menyimpan email acak ke dalam environment variable 'setEmail'\r",
+									"pm.environment.set('setEmail_buyer', email);\r",
+									"\r",
+									"console.log(email);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"warning": "This is a duplicate header and will be overridden by the Content-Type header generated by Postman.",
+								"key": "Content-Type",
+								"value": "multipart/form-data",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "full_name",
+									"value": "arpan",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "{{setEmail_buyer}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text"
+								},
+								{
+									"key": "phone_number",
+									"value": "0851111",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Jln mana ya",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "city",
+									"value": "ciamis",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base.url}}/auth/register",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Mendapatkan data dari respons\r",
+									"var responseData = pm.response.json();\r",
+									"\r",
+									"// Mengambil access_token dari respons\r",
+									"var accessToken = responseData.access_token;\r",
+									"\r",
+									"// Simpan access_token ke dalam environment untuk akun pertama\r",
+									"pm.environment.set(\"access_token_buyer\", accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{setEmail_buyer}}\",\r\n  \"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/auth/login",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/buyer/product?status=available&category_id=1&search=Motor&page=1&per_page=10",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"buyer",
+								"product"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "available"
+								},
+								{
+									"key": "category_id",
+									"value": "1"
+								},
+								{
+									"key": "search",
+									"value": "Motor"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Memeriksa waktu respons\r",
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/buyer/product/{{id_product}}",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"buyer",
+								"product",
+								"{{id_product}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Mendapatkan data dari respons\r",
+									"var responseData = pm.response.json();\r",
+									"\r",
+									"// Mengambil access_token dari respons\r",
+									"var idorder = responseData.id;\r",
+									"\r",
+									"// Simpan access_token ke dalam environment untuk akun pertama\r",
+									"pm.environment.set(\"id_order\", idorder);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"product_id\": {{id_product}},\r\n  \"bid_price\": 1000000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/buyer/order",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"buyer",
+								"order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/buyer/order",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"buyer",
+								"order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Memeriksa waktu respons\r",
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/buyer/order/{{id_order}}",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"buyer",
+								"order",
+								"{{id_order}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Order by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Memeriksa waktu respons\r",
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"bid_price\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base.url}}/buyer/order/{{id_order}}",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"buyer",
+								"order",
+								"{{id_order}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Set header dengan kunci 'access_token' dan nilai '{{access_token}}'",
+							"pm.request.headers.add({",
+							"    key: 'access_token',",
+							"    value: pm.environment.get('access_token_buyer')",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Seller",
+			"item": [
+				{
+					"name": "Edit Order by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Memeriksa waktu respons\r",
+									"pm.test(\"Memeriksa waktu respons kurang dari 500ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "status",
+									"value": "accepted",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base.url}}/seller/order/{{id_order}}",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"seller",
+								"order",
+								"{{id_order}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base.url}}/seller/product/{{id_product}}",
+							"host": [
+								"{{base.url}}"
+							],
+							"path": [
+								"seller",
+								"product",
+								"{{id_product}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Set header dengan kunci 'access_token' dan nilai '{{access_token}}'",
+							"pm.request.headers.add({",
+							"    key: 'access_token',",
+							"    value: pm.environment.get('access_token')",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
